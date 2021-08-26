@@ -8,9 +8,9 @@
     <h1 class="midashi_1"> 好きな食べ物を教えてください！！ </h1>
     <?php
     
-    'データベース名' = 'mysql:dbname=tb230356db;host=localhost';
-    'ユーザー名' = 'tb-230356';
-    'パスワード' = 'kfw9cVtdsp';
+    $dsn= 'データベース名';
+    $user = 'ユーザー名';
+    $password = 'パスワード';
     $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
     
     if(isset($_POST["name"]) && isset($_POST["comment"])){
