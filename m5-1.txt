@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>mission_5-1</title>
+</head>
+<body>
+    <h1 class="midashi_1"> 好きな食べ物を教えてください！！ </h1>
+    <?php
+    
+    'データベース名' = 'mysql:dbname=tb230356db;host=localhost';
+    'ユーザー名' = 'tb-230356';
+    'パスワード' = 'kfw9cVtdsp';
+    $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
+    
+    if(isset($_POST["name"]) && isset($_POST["comment"])){
+        $pass_c = $_POST["pass_c"];
+        $name = $_POST["name"];
+        $comment = $_POST["comment"];
+        if($pass_c == "passc"){
+            if (empty($_POST["edit_n"])){
+                $sql = $pdo -> prepare("INSERT INTO keijiban (name, comment, date) VALUES (:name, :comment, :date)");
+                $sql -> bindParam(':name', $name, PDO::PARAM_STR);
+                $sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
+                $sql -> bindParam(':date', $date, PDO::PARAM_STR);
+                $date = date('Y年m月d日 H時i分s秒');
+                $sql -> execute();
+                echo "書き込み成功！<br>";
+            }else{
+                $edit_n = $_POST["edit_n"];
+                $sql = 'UPDATE keijiban SET name=:name,comment=:comment WHERE id=:id';
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $edit_n, PDO::PARAM_INT);
+                $stmt->execute();// ←SQLを実行する。                             // ←SQLを実行する。
+                echo "編集成功！<br>";
+            }
+        }else{
+            echo "パスワードが違います<br>";
+        }
+    }else{
+        echo "文字を入力して「送信」をクリックしてください<br>";
+    }
+    
+    if(isset($_POST["delete"])){ //削除番号の入力があったら
+        $delete = $_POST["delete"];
+        $pass_d = $_POST["pass_d"];
+        if($pass_d == "passd"){
+            $id = $delete;
+            $sql = 'delete from keijiban where id=:id';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            echo "削除成功！<br>";
+        }else{
+            echo "パスワードが違います<br>";
+        }
+    }
+    
+    if(isset($_POST["edit"])){
+        $edit = $_POST["edit"];
+        $pass_e = $_POST["pass_e"];
+        if($pass_e == "passe"){
+            $sql = 'SELECT * FROM keijiban WHERE id='.$edit;
+            $stmt = $pdo->query($sql);                  // ←差し替えるパラメータを含めて記述したSQLを準備し、
+            $results = $stmt->fetchAll();
+            foreach ($results as $row){
+                $newnum = $row['id']; //変更する投稿番号
+                $newname = $row['name'];
+                $newcom = $row['comment'];
+                echo "編集してください<br>";
+            }
+        }else{
+            echo "パスワードが違います<br>";
+        }
+    }
+            
+    ?>
+    
+    <form action="" method="post">
+        <input type="hidden" name="edit_n" value=<?php if(isset($newnum)) {echo $newnum;} ?>>
+        <input type="text" name="name" placeholder="名前" value=<?php if(isset($newname)) {echo $newname;} ?>>
+        <input type="text" name="comment" placeholder="コメント" value=<?php if(isset($newcom)) {echo $newcom;} ?>>
+        <input type="password" name="pass_c" placeholder="パスワード">
+        <input type="submit" name="submit">
+    </form>
+    
+    <form action="" method="post">
+         <input type="number" name="delete" placeholder="削除対象番号" required>
+         <input type="password" name="pass_d" placeholder="パスワード">
+         <input type="submit" value="削除">
+    </form>
+    
+    <form action="" method="post">
+         <input type="number" name="edit" placeholder="編集対象番号" required>
+         <input type="password" name="pass_e" placeholder="パスワード">
+         <input type="submit" value="編集">
+    </form>
+    
+    <h3>投稿一覧</h3>
+    <?php
+    
+    $sql = 'SELECT * FROM keijiban';
+    $stmt = $pdo->query($sql);
+    $results = $stmt->fetchAll();
+    foreach ($results as $row){
+        echo $row['id'].' ';
+        echo $row['name'].' ';
+        echo $row['comment'].' ';
+        echo $row['date'].'<br>';
+        echo "<hr>";
+    }
+    
+    ?>
+    
+</body>
